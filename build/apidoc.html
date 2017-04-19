@@ -61,12 +61,75 @@
 
     <li class="apidocModuleLi"><a href="#apidoc.module.cors">module cors</a><ol>
 
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.cors.cors">
+            function <span class="apidocSignatureSpan"></span>cors
+            <span class="apidocSignatureSpan">(o)</span>
+            </a>
+
+        </li>
+
     </ol></li>
 
 </ol></div>
 
 <div class="apidocSectionDiv">
 <h1><a href="#apidoc.module.cors" id="apidoc.module.cors">module cors</a></h1>
+
+
+    <h2>
+        <a href="#apidoc.element.cors.cors" id="apidoc.element.cors.cors">
+        function <span class="apidocSignatureSpan"></span>cors
+        <span class="apidocSignatureSpan">(o)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">function middlewareWrapper(o) {
+  // if options are static (either via defaults or custom options passed in), wrap in a function
+  var optionsCallback = null;
+  if (typeof o === &#x27;function&#x27;) {
+    optionsCallback = o;
+  } else {
+    optionsCallback = function (req, cb) {
+      cb(null, o);
+    };
+  }
+
+  return function corsMiddleware(req, res, next) {
+    optionsCallback(req, function (err, options) {
+      if (err) {
+        next(err);
+      } else {
+        var corsOptions = assign({}, defaults, options);
+        var originCallback = null;
+        if (corsOptions.origin &#x26;&#x26; typeof corsOptions.origin === &#x27;function&#x27;) {
+          originCallback = corsOptions.origin;
+        } else if (corsOptions.origin) {
+          originCallback = function (origin, cb) {
+            cb(null, corsOptions.origin);
+          };
+        }
+
+        if (originCallback) {
+          originCallback(req.headers.origin, function (err2, origin) {
+            if (err2 || !origin) {
+              next(err2);
+            } else {
+              corsOptions.origin = origin;
+              cors(corsOptions, req, res, next);
+            }
+          });
+        } else {
+          next();
+        }
+      }
+    });
+  };
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
 
 </div>
 
